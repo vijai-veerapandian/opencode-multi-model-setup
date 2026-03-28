@@ -1,0 +1,21 @@
+# This automatically creates an initContainer to pull the model before starting!
+ollama:
+  models:
+    pull:
+      - qwen2.5-coder:7b
+
+# This automatically handles creating your persistent volume claim
+persistentVolume:
+  enabled: true
+  size: 30Gi
+  storageClass: "local-path" # Just like your current pvc.yaml
+  accessModes:
+    - ReadWriteOnce
+
+resources:
+  requests:
+    cpu: "2"
+    memory: "6Gi"
+  limits:
+    cpu: "6"
+    memory: "10Gi"

@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama
+  namespace: ollama
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: ollama
+  template:
+    metadata:
+      labels:
+        app: ollama
+    spec:
+      # Init container: pulls model before main container starts
+      initContainers:
+      - name: pull-model
+        image: ollama/ollama:latest
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            # Start ollama server in background
+            ollama serve &
+            SERVER_PID=$!
+            sleep 5
+            # Pull model only if not already present
+            if ! ollama list | grep -q "qwen2.5-coder:7b"; then
+              echo "Pulling model..."
+              ollama pull qwen2.5-coder:7b
+            else
+              echo "Model already exists, skipping pull."
+            fi
+            kill $SERVER_PID
+        envFrom:
+        - configMapRef:
+            name: ollama-config
+        volumeMounts:
+        - name: models
+          mountPath: /root/.ollama
+
+      containers:
+      - name: ollama
+        image: ollama/ollama:latest
+        ports:
+        - containerPort: 11434
+          name: http
+        envFrom:
+        - configMapRef:
+            name: ollama-config
+        resources:
+          requests:
+            memory: "6Gi"
+            cpu: "2"
+          limits:
+            memory: "10Gi"
+            cpu: "6"
+        volumeMounts:
+        - name: models
+          mountPath: /root/.ollama
+        readinessProbe:
+          httpGet:
+            path: /api/tags
+            port: 11434
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /api/tags
+            port: 11434
+          initialDelaySeconds: 30
+          periodSeconds: 30
+      volumes:
+      - name: models
+        persistentVolumeClaim:
+          claimName: ollama-models

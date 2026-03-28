@@ -1,0 +1,37 @@
+{
+  "default_model": "local-ollama",
+  "models": {
+    "local-ollama": {
+      "provider": "openai",
+      "model": "qwen2.5-coder:7b",
+      "api_base": "http://192.168.2.240/v1",
+      "api_key": "ollama"
+    },
+    "claude3-opus": {
+      "provider": "anthropic",
+      "model": "claude-3-opus-20240229",
+      "api_key": "env:ANTHROPIC_API_KEY"
+    },
+    "claude3.5-sonnet": {
+      "provider": "anthropic",
+      "model": "claude-3-5-sonnet-20240620",
+      "api_key": "env:ANTHROPIC_API_KEY"
+    },
+    "gemini-pro": {
+      "provider": "google",
+      "model": "gemini-1.5-pro-latest",
+      "api_key": "env:GEMINI_API_KEY"
+    },
+    "gemini-flash": {
+      "provider": "google",
+      "model": "gemini-1.5-flash-latest",
+      "api_key": "env:GEMINI_API_KEY"
+    },
+    "perplexity-sonar": {
+      "provider": "openai",
+      "model": "llama-3.1-sonar-large-128k-online",
+      "api_base": "https://api.perplexity.ai/",
+      "api_key": "env:PERPLEXITY_API_KEY"
+    }
+  }
+}
